@@ -1,3 +1,3 @@
 #  📝 ⇝ 🧏
 ## Sign Translate
-use sequnce to sequence to translate many languages to sign language
+Use sequnce to sequence deep neural nets to translate many languages to sign language
