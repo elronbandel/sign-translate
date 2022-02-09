@@ -13,4 +13,4 @@ python run_translation.py \
     --save_steps 1000 \
     --logging_steps 1000 \
     --learning_rate 1e-4 \
-    --max_grad_norm 1.0  
+    --max_grad_norm 1.0

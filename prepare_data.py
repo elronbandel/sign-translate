@@ -8,12 +8,14 @@ def main():
     parser.add_argument('--target_file', type=str, default=None)
     parser.add_argument('--index_col', type=int, default=None)
     parser.add_argument('--wrapper_col', type=str, default=None)
-    parser.add_argument('--start_index', type=int, default=0)
-    parser.add_argument('--end_index', type=int, default=-1)
+    parser.add_argument('--start_percent', type=int, default=0)
+    parser.add_argument('--end_percent', type=int, default=100)
     args = parser.parse_args()
 
     df = pd.read_csv(args.source_file, index_col=args.index_col)
-    df = df.iloc[args.start_index:args.end_index]
+    start_index = int(args.start_percent * len(df) / 100)
+    end_index = int(args.end_percent * len(df) / 100)
+    df = df.iloc[start_index:end_index]
     
     lines = df.to_json(orient='records', lines=True)
     

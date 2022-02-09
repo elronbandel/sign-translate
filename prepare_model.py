@@ -25,7 +25,9 @@ def main():
     ##
     # prepare source tokenizer
     ##
-    
+
+    os.makedirs(args.outputs_dir, exist_ok=True)
+
     src_tokenizer = AutoTokenizer.from_pretrained(args.source_model, use_fast=False)
     
     src_voc_path = os.path.join(args.outputs_dir, args.temp_vocab_name) + '_trg.json'
