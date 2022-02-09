@@ -3,3 +3,4 @@ outputs/*
 .vscode/*
 data/*
 !data/data.csv.gz
+.DS_Store
