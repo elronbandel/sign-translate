@@ -1,5 +1,7 @@
 import argparse
 import pandas as pd
+
+
 def main():
     parser = argparse.ArgumentParser(description='My App.')
     parser.add_argument('--source_file', type=str, default=None)
@@ -8,8 +10,6 @@ def main():
     parser.add_argument('--wrapper_col', type=str, default=None)
     parser.add_argument('--start_index', type=int, default=0)
     parser.add_argument('--end_index', type=int, default=-1)
-
-    
     args = parser.parse_args()
 
     df = pd.read_csv(args.source_file, index_col=args.index_col)
