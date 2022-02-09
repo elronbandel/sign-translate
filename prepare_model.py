@@ -30,7 +30,7 @@ def main():
 
     src_tokenizer = AutoTokenizer.from_pretrained(args.source_model, use_fast=False)
     
-    src_voc_path = os.path.join(args.outputs_dir, args.temp_vocab_name) + '_trg.json'
+    src_voc_path = os.path.join(args.outputs_dir, args.temp_vocab_name) + '_src.json'
     with open(src_voc_path, 'w+') as f:
         json.dump(src_tokenizer.get_vocab(), f)   
     
@@ -40,12 +40,19 @@ def main():
     # prepare target tokenizer
     ##
     
-    trg_tokenizer = AutoTokenizer.from_pretrained(args.target_model, use_fast=False)
+    BOS = '<s>' if src_tokenizer.bos_token is None else src_tokenizer.bos_token
+    EOS = '</s>' if src_tokenizer.eos_token is None else src_tokenizer.eos_token
+    
+    # trg_tokenizer = AutoTokenizer.from_pretrained(args.target_model, use_fast=False)
     
     with open(args.vocab_file, 'r') as f:
         vocab = f.read().splitlines()
     
     trg_spm_path = os.path.join(args.outputs_dir, args.temp_spm_name) + '_trg'
+    
+    eos_token_id = src_tokenizer.eos_token_id if src_tokenizer.eos_token_id is not None else src_tokenizer.sep_token_id
+    if eos_token_id is not None and eos_token_id > len(vocab):
+        eos_token_id = None
     
     spm.SentencePieceTrainer.train(
         sentence_iterator=iter(set(vocab)),
@@ -58,10 +65,11 @@ def main():
         hard_vocab_limit=False,
         unk_id=src_tokenizer.unk_token_id,
         pad_id=src_tokenizer.pad_token_id,
-        eos_id=src_tokenizer.eos_token_id if src_tokenizer.eos_token is not None else src_tokenizer.sep_token_id,
+        eos_id=eos_token_id,
         unk_piece=src_tokenizer.unk_token,
         pad_piece=src_tokenizer.pad_token,
-        eos_piece=src_tokenizer.eos_token if src_tokenizer.eos_token is not None else src_tokenizer.sep_token,
+        bos_piece=BOS,
+        eos_piece=EOS,
     )
     
     ##
@@ -75,8 +83,9 @@ def main():
             source_lang='multi',
             target_lang='sign',
             unk_token=src_tokenizer.unk_token,
-            eos_token=src_tokenizer.eos_token,
             pad_token=src_tokenizer.pad_token,
+            bos_token=BOS,
+            eos_token=EOS,
             model_max_length=args.model_max_length,
     )
     
@@ -95,13 +104,16 @@ def main():
          args.source_model, args.target_model,
     )  
     
-    model.decoder.resize_token_embeddings(len(tokenizer))
+    model.decoder.resize_token_embeddings(len(tokenizer.spm_target))
     
     model.config.tokenizer_class = tokenizer.__class__.__name__
     model.config.pad_token_id = tokenizer.pad_token_id
-    model.config.eos_token_id = tokenizer.eos_token_id
+    model.config.eos_token_id = eos_token_id
     model.config.max_length = args.model_max_length
-    model.config.decoder_start_token_id = trg_tokenizer.bos_token_id
+    model.config.decoder_start_token_id = tokenizer.pad_token_id
+    model.decoder.config.pad_token_id = tokenizer.pad_token_id
+    model.decoder.config.bos_token_id = tokenizer.spm_target.piece_to_id(BOS)
+    model.decoder.config.eos_token_id = tokenizer.spm_target.piece_to_id(EOS)
     
     model.save_pretrained(model_dir)
 
