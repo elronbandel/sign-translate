@@ -1,0 +1,5 @@
+models/*
+outputs/*
+.vscode/*
+data/*
+!data/data.csv.gz
