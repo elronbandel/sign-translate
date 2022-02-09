@@ -3,4 +3,5 @@ outputs/*
 .vscode/*
 data/*
 !data/data.csv.gz
+!data/vocab.txt
 .DS_Store
