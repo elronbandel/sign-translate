@@ -350,7 +350,8 @@ def main():
         use_auth_token=True if model_args.use_auth_token else None,
     )
 
-    # model.resize_token_embeddings(len(tokenizer))
+    with tokenizer.as_target_tokenizer():
+        model.decoder.resize_token_embeddings(len(tokenizer))
 
     # Set decoder_start_token_id
     if model.config.decoder_start_token_id is None and isinstance(tokenizer, (MBartTokenizer, MBartTokenizerFast)):

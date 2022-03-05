@@ -77,7 +77,6 @@ def main():
     ##
 
     tokenizer = MarianTokenizer(
-            vocab=src_voc_path,
             source_spm=src_spm_path,
             target_spm=trg_spm_path + '.model',
             source_lang='multi',
